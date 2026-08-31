@@ -1,0 +1,698 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Nuestros Momentos</title>
+    <!-- Fuente clásica Playfair Display -->
+    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400..900;1,400..900&display=swap" rel="stylesheet">
+
+    <style>
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            background-color: #fcf9f5; /* Fondo nácar */
+            color: #4a4a4a;
+            font-family: 'Playfair Display', Georgia, serif;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            min-height: 100vh;
+            overflow-x: hidden;
+            padding: 20px 20px 40px 20px;
+            text-align: center;
+            position: relative;
+        }
+
+        /* --- BARRA / BOTÓN DE MÚSICA DISCRETO --- */
+        .music-bar {
+            background-color: #f3edd8;
+            border: 1px solid #e6dcbe;
+            padding: 8px 16px;
+            border-radius: 20px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin-bottom: 20px;
+            cursor: pointer;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.05);
+            transition: transform 0.2s ease;
+            z-index: 10;
+        }
+
+        .music-bar:hover {
+            transform: scale(1.03);
+        }
+
+        .music-icon {
+            font-size: 1.1rem;
+            animation: pulseMusic 2s infinite ease-in-out;
+        }
+
+        @keyframes pulseMusic {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.2); }
+            100% { transform: scale(1); }
+        }
+
+        .music-text {
+            font-size: 0.85rem;
+            font-style: italic;
+            color: #8c5a45;
+            letter-spacing: 0.5px;
+        }
+
+        .album-container {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            width: 100%;
+            max-width: 380px;
+            z-index: 2;
+        }
+
+        /* --- TEXTOS SUPERIORES --- */
+        .header-texts {
+            margin-bottom: 25px;
+        }
+
+        .main-phrase {
+            font-size: 1.35rem;
+            font-weight: 600;
+            color: #8c5a45;
+            margin-bottom: 8px;
+            line-height: 1.4;
+        }
+
+        .sub-date {
+            font-size: 0.95rem;
+            color: #9c7b80;
+            letter-spacing: 2px;
+        }
+
+        /* --- MARCO TIPO POLAROID --- */
+        .polaroid-frame {
+            background-color: #ffffff;
+            padding: 16px 16px 55px 16px;
+            border-radius: 3px;
+            box-shadow: 0 15px 35px rgba(0, 0, 0, 0.12), 0 5px 15px rgba(0, 0, 0, 0.05);
+            transform: rotate(-1.5deg);
+            width: 100%;
+            max-width: 310px;
+            position: relative;
+            margin-bottom: 20px;
+            transition: transform 0.3s ease;
+        }
+
+        .polaroid-frame:hover {
+            transform: rotate(0deg);
+        }
+
+        /* Contenedor del carrusel de fotos */
+        .carousel {
+            display: flex;
+            overflow-x: auto;
+            scroll-snap-type: x mandatory;
+            scroll-behavior: smooth;
+            gap: 10px;
+            width: 100%;
+            border-radius: 2px;
+            scrollbar-width: none; /* Firefox */
+        }
+        .carousel::-webkit-scrollbar {
+            display: none; /* Chrome, Safari */
+        }
+
+        .carousel-slide {
+            flex: 0 0 100%;
+            scroll-snap-align: center;
+            aspect-ratio: 4 / 5;
+            background-color: #f0eae1;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            overflow: hidden;
+            border-radius: 2px;
+        }
+
+        .carousel-slide img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        /* Zona inferior dentro de la Polaroid */
+        .polaroid-footer {
+            position: absolute;
+            bottom: 12px;
+            left: 0;
+            width: 100%;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .dots-container {
+            display: flex;
+            gap: 6px;
+            justify-content: center;
+        }
+
+        .dot {
+            width: 6px;
+            height: 6px;
+            border-radius: 50%;
+            background-color: #d1c5bc;
+            transition: all 0.3s ease;
+            cursor: pointer;
+        }
+
+        .dot.active {
+            background-color: #e06d78;
+            transform: scale(1.2);
+        }
+
+        .polaroid-decoration {
+            font-size: 0.85rem;
+            color: #b59b9e;
+            letter-spacing: 4px;
+        }
+
+        /* --- SECCIÓN DE BRINDIS --- */
+        .final-closing {
+            margin: 15px 0 25px 0;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 12px;
+            width: 100%;
+            position: relative;
+            min-height: 80px;
+        }
+
+        .glasses-container {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 20px; 
+            font-size: 2rem;
+            width: 100%;
+            position: relative;
+        }
+
+        .glass-left, .glass-right {
+            display: inline-block;
+            transition: transform 1s cubic-bezier(0.25, 1, 0.5, 1);
+        }
+
+        .final-closing.animate .glass-left {
+            transform: translateX(25px) rotate(-10deg);
+        }
+
+        .final-closing.animate .glass-right {
+            transform: translateX(-25px) rotate(10deg);
+        }
+
+        .final-phrase {
+            font-size: 1.1rem;
+            font-style: italic;
+            font-weight: 600;
+            color: #8c5a45;
+            letter-spacing: 1px;
+            opacity: 0;
+            transform: translateY(10px);
+            transition: opacity 0.8s ease 0.8s, transform 0.8s ease 0.8s;
+        }
+
+        .final-closing.animate .final-phrase {
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        .sparkles {
+            position: absolute;
+            top: 5px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 60px;
+            height: 40px;
+            pointer-events: none;
+            opacity: 0;
+        }
+
+        .final-closing.animate .sparkles {
+            animation: sparkEffect 0.8s ease 0.9s forwards;
+        }
+
+        @keyframes sparkEffect {
+            0% { opacity: 0; transform: translateX(-50%) scale(0.5); }
+            50% { opacity: 1; transform: translateX(-50%) scale(1.2); }
+            100% { opacity: 0; transform: translateX(-50%) scale(1.6); }
+        }
+
+        .sparkle-particle {
+            position: absolute;
+            font-size: 0.9rem;
+        }
+        .sp1 { top: 0; left: 10px; animation: p1 0.8s ease-out forwards; }
+        .sp2 { top: 5px; right: 10px; animation: p2 0.8s ease-out forwards; }
+        .sp3 { bottom: 0; left: 25px; animation: p3 0.8s ease-out forwards; }
+
+        @keyframes p1 { 0% { transform: translate(0, 0); opacity: 1; } 100% { transform: translate(-20px, -20px); opacity: 0; } }
+        @keyframes p2 { 0% { transform: translate(0, 0); opacity: 1; } 100% { transform: translate(20px, -20px); opacity: 0; } }
+        @keyframes p3 { 0% { transform: translate(0, 0); opacity: 1; } 100% { transform: translate(0, 15px); opacity: 0; } }
+
+        /* --- SOBRE / CARTA --- */
+        .interactive-section {
+            width: 100%;
+            max-width: 310px;
+            position: relative;
+            margin-bottom: 20px;
+        }
+
+        .envelope-card {
+            background-color: #f3edd8;
+            border-radius: 6px;
+            padding: 40px 20px;
+            box-shadow: 0 10px 25px rgba(0,0,0,0.08);
+            position: relative;
+            cursor: pointer;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            min-height: 180px;
+            transition: all 0.5s ease;
+            border: 1px solid #e6dcbe;
+        }
+
+        .wax-seal {
+            width: 55px;
+            height: 55px;
+            background: radial-gradient(circle, #d43b4c 0%, #991c28 100%);
+            border-radius: 50%;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.25);
+            border: 2px dashed rgba(255, 255, 255, 0.3);
+            margin-bottom: 15px;
+        }
+
+        .wax-seal span {
+            color: #fff;
+            font-weight: bold;
+            font-size: 1rem;
+        }
+
+        .envelope-text {
+            font-size: 0.95rem;
+            font-style: italic;
+            color: #8c7b68;
+        }
+
+        .letter-content {
+            background-color: #f3edd8;
+            border-radius: 6px;
+            padding: 35px 25px;
+            box-shadow: 0 15px 35px rgba(0,0,0,0.1);
+            width: 100%;
+            text-align: center;
+            display: none;
+            opacity: 0;
+            transform: scale(0.95);
+            transition: all 0.6s ease;
+            border: 1px solid #e6dcbe;
+        }
+
+        .letter-content.visible {
+            display: block;
+            opacity: 1;
+            transform: scale(1);
+        }
+
+        .letter-header-emojis {
+            font-size: 1.2rem;
+            margin-bottom: 20px;
+            letter-spacing: 5px;
+        }
+
+        .letter-text {
+            font-size: 1.05rem;
+            line-height: 1.7;
+            color: #4a3f35;
+            font-style: italic;
+            margin-bottom: 20px;
+        }
+
+        .letter-footer-note {
+            font-size: 1.05rem;
+            color: #8c5a45;
+            font-style: italic;
+            line-height: 1.6;
+            margin-top: 25px;
+            border-top: 1px dashed rgba(140, 90, 69, 0.2);
+            padding-top: 20px;
+        }
+
+        /* --- MARCO DE MADERA FOTO 7 --- */
+        .wooden-frame-container {
+            width: 100%;
+            max-width: 310px;
+            background-color: #ffffff;
+            padding: 16px 16px 20px 16px;
+            border-radius: 4px;
+            box-shadow: 0 15px 35px rgba(0, 0, 0, 0.12);
+            transform: rotate(1deg);
+            margin: 20px 0;
+            display: none;
+            opacity: 0;
+            transform: scale(0.95);
+            transition: all 0.6s ease;
+        }
+
+        .wooden-frame-container.visible {
+            display: block;
+            opacity: 1;
+            transform: scale(1) rotate(1deg);
+        }
+
+        .wooden-border {
+            border: 8px solid #8B5A2B;
+            padding: 6px;
+            background-color: #f0eae1;
+            aspect-ratio: 4 / 5;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            overflow: hidden;
+            border-radius: 2px;
+        }
+
+        .wooden-border img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        .wooden-caption {
+            margin-top: 12px;
+            font-size: 0.9rem;
+            font-style: italic;
+            color: #6b421c;
+        }
+
+        .extra-final-message-container {
+            margin: 15px 0 25px 0;
+            opacity: 0;
+            transform: translateY(10px);
+            transition: all 0.8s ease 0.6s;
+            display: none;
+        }
+
+        .extra-final-message-container.visible {
+            display: block;
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        .extra-final-message {
+            font-size: 1.05rem;
+            font-style: italic;
+            color: #6b421c;
+        }
+
+        .action-section {
+            margin-top: 10px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 20px;
+            opacity: 0;
+            transform: translateY(15px);
+            transition: all 0.8s ease 0.8s;
+        }
+
+        .extra-final-message-container.visible ~ .action-section,
+        .action-section.visible {
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        .save-btn {
+            background-color: #e06d78;
+            color: white;
+            border: none;
+            padding: 12px 25px;
+            font-family: 'Playfair Display', Georgia, serif;
+            font-size: 0.95rem;
+            font-style: italic;
+            border-radius: 25px;
+            cursor: pointer;
+            box-shadow: 0 4px 15px rgba(224, 109, 120, 0.3);
+            transition: all 0.3s ease;
+        }
+
+        .save-btn:hover {
+            background-color: #cc5b66;
+            transform: scale(1.05);
+        }
+
+        .signature {
+            font-size: 0.85rem;
+            letter-spacing: 3px;
+            color: #b59b9e;
+            text-transform: uppercase;
+            font-weight: 600;
+        }
+
+        .confetti-container {
+            position: fixed;
+            top: 0; left: 0; width: 100%; height: 100%;
+            pointer-events: none;
+            overflow: hidden;
+            z-index: 999;
+            display: none;
+        }
+        .confetti-container.active { display: block; }
+        .confetti {
+            position: absolute;
+            top: -20px;
+            width: 10px; height: 15px;
+            opacity: 0.8;
+            animation: fall linear forwards;
+        }
+        @keyframes fall {
+            0% { transform: translateY(0) rotate(0deg); opacity: 1; }
+            100% { transform: translateY(105vh) rotate(720deg); opacity: 0; }
+        }
+
+        .hidden { display: none !important; }
+    </style>
+</head>
+<body>
+
+    <!-- Botón / Barra de música visible superior para evitar bloqueos de navegador -->
+    <div class="music-bar" id="musicBar" onclick="toggleMusica()">
+        <span class="music-icon" id="musicIcon">🎵</span>
+        <span class="music-text" id="musicText">Toca aquí para escuchar una bella canción</span>
+    </div>
+
+    <!-- Contenedor para papelillos -->
+    <div class="confetti-container" id="confettiContainer"></div>
+
+    <div class="album-container">
+        
+        <div class="header-texts">
+            <h2 class="main-phrase">Te amo esposa bella, feliz cumpleaños!</h2>
+            <p class="sub-date">12 de octubre</p>
+        </div>
+
+        <div class="polaroid-frame">
+            <div class="carousel" id="photoCarousel">
+                <div class="carousel-slide"><img src="img/foto1.jpeg" alt="1" onerror="this.src='https://via.placeholder.com/300x375/f0eae1/888?text=Foto+1'"></div>
+                <div class="carousel-slide"><img src="img/foto2.jpeg" alt="2" onerror="this.src='https://via.placeholder.com/300x375/f0eae1/888?text=Foto+2'"></div>
+                <div class="carousel-slide"><img src="img/foto3.jpeg" alt="3" onerror="this.src='https://via.placeholder.com/300x375/f0eae1/888?text=Foto+3'"></div>
+                <div class="carousel-slide"><img src="img/foto4.jpeg" alt="4" onerror="this.src='https://via.placeholder.com/300x375/f0eae1/888?text=Foto+4'"></div>
+                <div class="carousel-slide"><img src="img/foto5.jpeg" alt="5" onerror="this.src='https://via.placeholder.com/300x375/f0eae1/888?text=Foto+5'"></div>
+                <div class="carousel-slide"><img src="img/foto6.jpeg" alt="6" onerror="this.src='https://via.placeholder.com/300x375/f0eae1/888?text=Foto+6'"></div>
+            </div>
+
+            <div class="polaroid-footer">
+                <div class="dots-container" id="dotsContainer">
+                    <div class="dot active"></div><div class="dot"></div><div class="dot"></div>
+                    <div class="dot"></div><div class="dot"></div><div class="dot"></div>
+                </div>
+                <div class="polaroid-decoration">✨ 🪅 ✨</div>
+            </div>
+        </div>
+
+        <div class="final-closing" id="brindisSection">
+            <div class="sparkles">
+                <span class="sparkle-particle sp1">✨</span>
+                <span class="sparkle-particle sp2">💥</span>
+                <span class="sparkle-particle sp3">✨</span>
+            </div>
+            <div class="glasses-container">
+                <span class="glass-left">🍾</span>
+                <span class="glass-right">🥂</span>
+            </div>
+            <p class="final-phrase">Por todos tus cumpleaños, juntos!</p>
+        </div>
+
+        <div class="interactive-section">
+            <div class="envelope-card" id="envelopeCard" onclick="abrirCarta()">
+                <div class="wax-seal"><span>G V</span></div>
+                <p class="envelope-text">Hay algo escrito para ti...</p>
+            </div>
+
+            <div class="letter-content" id="letterContent">
+                <div class="letter-header-emojis">🎈 🎂 🎈</div>
+                <div class="letter-text">
+                    <p>Llegaste a mi vida y cambiaste todo.</p><br>
+                    <p>Soy el hombre más afortunado por tenerte a mí lado y celebrar cada día de tu vida juntos.</p><br>
+                    <p>En este momento, quiero que sepas lo mucho que te amo y cuánto aprecio tener la oportunidad de vivir estos momentos contigo.</p><br>
+                    <p>Porque sé que cada día la vida te seguirá mostrando que no hay nadie más especial que <b>TÚ</b>.</p>
+                </div>
+                <div class="letter-footer-note">
+                    <p>Cada año tuyo es un capítulo nuevo,<br>y pienso estar en todos.</p>
+                </div>
+            </div>
+        </div>
+
+        <div class="wooden-frame-container" id="woodenFrame">
+            <div class="wooden-border">
+                <img src="img/foto7.jpeg" alt="7" onerror="this.src='https://via.placeholder.com/300x375/f0eae1/888?text=Foto+7'">
+            </div>
+            <div class="wooden-caption">Nuestro instante favorito</div>
+        </div>
+
+        <div class="extra-final-message-container" id="extraMessage">
+            <p class="extra-final-message">Gracias por compartir tu vida conmigo.</p>
+        </div>
+
+        <div class="action-section" id="actionSection">
+            <button class="save-btn" onclick="guardarMomento()">Guardar este momento</button>
+            <div class="signature">Hecho con amor</div>
+        </div>
+
+    </div>
+
+    <!-- Reproductor de Audio Local (cancion.mp3) -->
+    <audio id="audioFondo" preload="auto" loop>
+    <source src="cancion.mp3" type="audio/mpeg">
+    Tu navegador no soporta el elemento de audio.
+</audio>
+
+    <script>
+        const carousel = document.getElementById('photoCarousel');
+        const dots = document.querySelectorAll('.dot');
+        const brindisSection = document.getElementById('brindisSection');
+        let animationTriggered = false;
+
+        function actualizarPuntos() {
+            const slideWidth = carousel.clientWidth;
+            const currentIndex = Math.round(carousel.scrollLeft / slideWidth);
+            dots.forEach((dot, i) => dot.classList.toggle('active', i === currentIndex));
+
+            if (currentIndex === 5 && !animationTriggered) {
+                animationTriggered = true;
+                brindisSection.classList.add('animate');
+            }
+        }
+
+        carousel.addEventListener('scroll', actualizarPuntos);
+
+        dots.forEach((dot, index) => {
+            dot.addEventListener('click', () => {
+                carousel.scrollTo({ left: carousel.clientWidth * index, behavior: 'smooth' });
+            });
+        });
+
+        // --- ABRIR CARTA SIN APAGAR LA MÚSICA ---
+        function abrirCarta() {
+            // Si el usuario abre la carta y la música estaba apagada, la encendemos por él.
+            // Si ya estaba sonando, .play() no hace nada malo y la música sigue su curso.
+            audioFondo.play().then(() => {
+                reproduciendo = true;
+                const musicText = document.getElementById('musicText');
+                const musicIcon = document.getElementById('musicIcon');
+                const musicBar = document.getElementById('musicBar');
+                musicText.innerText = "Reproduciendo música 🎶";
+                musicIcon.innerText = "🔊";
+                musicBar.style.backgroundColor = "#e6dcbe";
+            }).catch(error => {
+                console.log("El navegador requiere interacción previa para el audio", error);
+            });
+
+            // Animación para desplegar la carta y el resto de elementos
+            document.getElementById('envelopeCard').classList.add('hidden');
+            setTimeout(() => {
+                document.getElementById('letterContent').classList.add('visible');
+                setTimeout(() => {
+                    document.getElementById('woodenFrame').classList.add('visible');
+                    setTimeout(() => {
+                        document.getElementById('extraMessage').classList.add('visible');
+                        document.getElementById('actionSection').classList.add('visible');
+                    }, 400);
+                }, 300);
+            }, 200);
+        }
+
+        function guardarMomento() {
+            alert('¡Momento guardado en el corazón (y listo para recordar)! ✨');
+        }
+
+        // Lluvia de confeti
+        let confettiTriggered = false;
+        window.addEventListener('scroll', () => {
+            if ((window.innerHeight + window.scrollY) >= (document.documentElement.scrollHeight - 100) && !confettiTriggered) {
+                confettiTriggered = true;
+                const container = document.getElementById('confettiContainer');
+                container.classList.add('active');
+                const colors = ['#e06d78', '#f3edd8', '#d43b4c', '#d1c5bc', '#8B5A2B'];
+                for (let i = 0; i < 50; i++) {
+                    const c = document.createElement('div');
+                    c.classList.add('confetti');
+                    c.style.left = Math.random() * 100 + 'vw';
+                    c.style.backgroundColor = colors[Math.floor(Math.random() * colors.length)];
+                    c.style.animationDuration = (Math.random() * 3 + 2) + 's';
+                    container.appendChild(c);
+                }
+            }
+        });
+
+        // --- CONTROL DE AUDIO LOCAL (cancion.mp3) ---
+        const audioFondo = document.getElementById('audioFondo');
+        let reproduciendo = false;
+
+        function toggleMusica() {
+            const musicText = document.getElementById('musicText');
+            const musicIcon = document.getElementById('musicIcon');
+            const musicBar = document.getElementById('musicBar');
+
+            if (!reproduciendo) {
+                audioFondo.play().then(() => {
+                    reproduciendo = true;
+                    musicText.innerText = "Reproduciendo música 🎶";
+                    musicIcon.innerText = "🔊";
+                    musicBar.style.backgroundColor = "#e6dcbe";
+                }).catch(error => {
+                    console.log("El navegador bloqueó la reproducción automática", error);
+                });
+            } else {
+                audioFondo.pause();
+                reproduciendo = false;
+                musicText.innerText = "Música pausada (Toca para reanudar)";
+                musicIcon.innerText = "🔇";
+                musicBar.style.backgroundColor = "#f3edd8";
+            }
+        }
+    </script>
+</body>
+</html>
