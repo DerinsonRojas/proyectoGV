@@ -1,0 +1,770 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Nuestros Momentos</title>
+    <!-- Fuente clásica Playfair Display -->
+    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400..900;1,400..900&display=swap" rel="stylesheet">
+
+    <style>
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            background-color: #fcf9f5; /* Fondo nácar */
+            color: #4a4a4a;
+            font-family: 'Playfair Display', Georgia, serif;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            min-height: 100vh;
+            overflow-x: hidden;
+            padding: 30px 20px;
+            text-align: center;
+            position: relative;
+        }
+
+        .album-container {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            width: 100%;
+            max-width: 380px;
+            z-index: 2;
+        }
+
+        /* --- TEXTOS SUPERIORES --- */
+        .header-texts {
+            margin-bottom: 25px;
+        }
+
+        .main-phrase {
+            font-size: 1.35rem;
+            font-weight: 600;
+            font-style: 'Playfair Display', Georgia, serif;
+            color: #8c5a45;
+            margin-bottom: 8px;
+            line-height: 1.4;
+        }
+
+        .sub-date {
+            font-size: 0.95rem;
+            color: #9c7b80;
+            letter-spacing: 2px;
+        }
+
+        /* --- MARCO TIPO POLAROID --- */
+        .polaroid-frame {
+            background-color: #ffffff;
+            padding: 16px 16px 55px 16px;
+            border-radius: 3px;
+            box-shadow: 0 15px 35px rgba(0, 0, 0, 0.12), 0 5px 15px rgba(0, 0, 0, 0.05);
+            transform: rotate(-1.5deg);
+            width: 100%;
+            max-width: 310px;
+            position: relative;
+            margin-bottom: 20px;
+            transition: transform 0.3s ease;
+        }
+
+        .polaroid-frame:hover {
+            transform: rotate(0deg);
+        }
+
+        /* Contenedor del carrusel de fotos */
+        .carousel {
+            display: flex;
+            overflow-x: auto;
+            scroll-snap-type: x mandatory;
+            scroll-behavior: smooth;
+            gap: 10px;
+            width: 100%;
+            border-radius: 2px;
+            scrollbar-width: none; /* Firefox */
+        }
+        .carousel::-webkit-scrollbar {
+            display: none; /* Chrome, Safari */
+        }
+
+        .carousel-slide {
+            flex: 0 0 100%;
+            scroll-snap-align: center;
+            aspect-ratio: 4 / 5;
+            background-color: #f0eae1;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            overflow: hidden;
+            border-radius: 2px;
+        }
+
+        .carousel-slide img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        /* Zona inferior dentro de la Polaroid */
+        .polaroid-footer {
+            position: absolute;
+            bottom: 12px;
+            left: 0;
+            width: 100%;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 8px;
+        }
+
+        /* Indicadores de puntitos interactivos */
+        .dots-container {
+            display: flex;
+            gap: 6px;
+            justify-content: center;
+        }
+
+        .dot {
+            width: 6px;
+            height: 6px;
+            border-radius: 50%;
+            background-color: #d1c5bc;
+            transition: all 0.3s ease;
+            cursor: pointer;
+        }
+
+        .dot.active {
+            background-color: #e06d78;
+            transform: scale(1.2);
+        }
+
+        /* Guirnaldas y detalles decorativos inferiores */
+        .polaroid-decoration {
+            font-size: 0.85rem;
+            color: #b59b9e;
+            letter-spacing: 4px;
+        }
+
+        /* --- SECCIÓN DE BRINDIS CON ANIMACIÓN DE ACERCAMIENTO Y CHOCAR --- */
+        .final-closing {
+            margin: 15px 0 25px 0;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 12px;
+            width: 100%;
+            position: relative;
+            min-height: 80px;
+        }
+
+        .glasses-container {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 20px; 
+            font-size: 2rem;
+            width: 100%;
+            position: relative;
+        }
+
+        /* Botella y copa en los extremos antes de acercarse */
+        .glass-left, .glass-right {
+            display: inline-block;
+            transition: transform 1s cubic-bezier(0.25, 1, 0.5, 1);
+        }
+
+        /* Cuando se activa la animación (al ver la última foto) */
+        .final-closing.animate .glass-left {
+            transform: translateX(25px) rotate(-10deg);
+        }
+
+        .final-closing.animate .glass-right {
+            transform: translateX(-25px) rotate(10deg);
+        }
+
+        /* Frase final con transición de aparición */
+        .final-phrase {
+            font-size: 1.1rem;
+            font-style: italic;
+            font-weight: 600;
+            color: #8c5a45;
+            letter-spacing: 1px;
+            opacity: 0;
+            transform: translateY(10px);
+            transition: opacity 0.8s ease 0.8s, transform 0.8s ease 0.8s;
+        }
+
+        .final-closing.animate .final-phrase {
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        /* Destellos de fuegos artificiales al chocar */
+        .sparkles {
+            position: absolute;
+            top: 5px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 60px;
+            height: 40px;
+            pointer-events: none;
+            opacity: 0;
+        }
+
+        .final-closing.animate .sparkles {
+            animation: sparkEffect 0.8s ease 0.9s forwards;
+        }
+
+        @keyframes sparkEffect {
+            0% {
+                opacity: 0;
+                transform: translateX(-50%) scale(0.5);
+            }
+            50% {
+                opacity: 1;
+                transform: translateX(-50%) scale(1.2);
+            }
+            100% {
+                opacity: 0;
+                transform: translateX(-50%) scale(1.6);
+            }
+        }
+
+        .sparkle-particle {
+            position: absolute;
+            font-size: 0.9rem;
+        }
+        .sp1 { top: 0; left: 10px; animation: p1 0.8s ease-out forwards; }
+        .sp2 { top: 5px; right: 10px; animation: p2 0.8s ease-out forwards; }
+        .sp3 { bottom: 0; left: 25px; animation: p3 0.8s ease-out forwards; }
+
+        @keyframes p1 {
+            0% { transform: translate(0, 0) scale(0.5); opacity: 1; }
+            100% { transform: translate(-20px, -20px) scale(1.2); opacity: 0; }
+        }
+        @keyframes p2 {
+            0% { transform: translate(0, 0) scale(0.5); opacity: 1; }
+            100% { transform: translate(20px, -20px) scale(1.2); opacity: 0; }
+        }
+        @keyframes p3 {
+            0% { transform: translate(0, 0) scale(0.5); opacity: 1; }
+            100% { transform: translate(0, 15px) scale(1.2); opacity: 0; }
+        }
+
+
+        /* --- SECCIÓN INTERACTIVA: SOBRE / CARTA --- */
+        .interactive-section {
+            width: 100%;
+            max-width: 310px;
+            position: relative;
+            margin-bottom: 20px;
+        }
+
+        .envelope-card {
+            background-color: #f3edd8;
+            border-radius: 6px;
+            padding: 40px 20px;
+            box-shadow: 0 10px 25px rgba(0,0,0,0.08);
+            position: relative;
+            cursor: pointer;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            min-height: 180px;
+            transition: all 0.5s ease;
+            border: 1px solid #e6dcbe;
+        }
+
+        .envelope-card::before {
+            content: '';
+            position: absolute;
+            top: 0; left: 0; width: 100%; height: 100%;
+            background: linear-gradient(135deg, transparent 50%, rgba(0,0,0,0.03) 50%),
+                        linear-gradient(225deg, transparent 50%, rgba(0,0,0,0.03) 50%);
+            pointer-events: none;
+            border-radius: 6px;
+        }
+
+        .wax-seal {
+            width: 55px;
+            height: 55px;
+            background: radial-gradient(circle, #d43b4c 0%, #991c28 100%);
+            border-radius: 50%;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.25), inset 0 2px 3px rgba(255,255,255,0.3);
+            border: 2px dashed rgba(255, 255, 255, 0.3);
+            margin-bottom: 15px;
+            transition: transform 0.3s ease;
+        }
+
+        .wax-seal:hover {
+            transform: scale(1.08);
+        }
+
+        .wax-seal span {
+            color: #fff;
+            font-weight: bold;
+            font-size: 1rem;
+            letter-spacing: 1px;
+        }
+
+        .envelope-text {
+            font-size: 0.95rem;
+            font-style: italic;
+            color: #8c7b68;
+        }
+
+        /* Carta desplegada */
+        .letter-content {
+            background-color: #f3edd8;
+            border-radius: 6px;
+            padding: 35px 25px;
+            box-shadow: 0 15px 35px rgba(0,0,0,0.1);
+            width: 100%;
+            text-align: center;
+            display: none;
+            opacity: 0;
+            transform: scale(0.95);
+            transition: all 0.6s ease;
+            border: 1px solid #e6dcbe;
+            position: relative;
+        }
+
+        .letter-content.visible {
+            display: block;
+            opacity: 1;
+            transform: scale(1);
+        }
+
+        .letter-header-emojis {
+            font-size: 1.2rem;
+            margin-bottom: 20px;
+            letter-spacing: 5px;
+        }
+
+        .letter-text {
+            font-size: 1.05rem;
+            line-height: 1.7;
+            color: #4a3f35;
+            font-style: italic;
+            margin-bottom: 20px;
+            text-align: center;
+        }
+
+        .letter-footer-note {
+            font-size: 1.05rem;
+            color: #8c5a45;
+            font-style: italic;
+            line-height: 1.6;
+            margin-top: 25px;
+            border-top: 1px dashed rgba(140, 90, 69, 0.2);
+            padding-top: 20px;
+        }
+
+        /* --- MARCO DE MADERA PARA FOTO 7 --- */
+        .wooden-frame-container {
+            width: 100%;
+            max-width: 310px;
+            background-color: #ffffff;
+            padding: 16px 16px 20px 16px;
+            border-radius: 4px;
+            box-shadow: 0 15px 35px rgba(0, 0, 0, 0.12), 0 5px 15px rgba(0, 0, 0, 0.05);
+            transform: rotate(1deg);
+            margin: 20px 0;
+            display: none;
+            opacity: 0;
+            transform: scale(0.95);
+            transition: all 0.6s ease;
+        }
+
+        .wooden-frame-container.visible {
+            display: block;
+            opacity: 1;
+            transform: scale(1) rotate(1deg);
+        }
+
+        .wooden-frame-container:hover {
+            transform: rotate(0deg);
+        }
+
+        .wooden-border {
+            border: 8px solid #8B5A2B;
+            border-image: linear-gradient(135deg, #a06532, #6b421c) 1;
+            padding: 6px;
+            background-color: #f0eae1;
+            aspect-ratio: 4 / 5;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            overflow: hidden;
+            border-radius: 2px;
+        }
+
+        .wooden-border img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        .wooden-caption {
+            margin-top: 12px;
+            font-size: 0.9rem;
+            font-style: italic;
+            color: #6b421c;
+            letter-spacing: 1px;
+        }
+
+        /* --- MENSAJE EXTRA FINAL --- */
+        .extra-final-message-container {
+            margin-top: 10px;
+            margin-bottom: 25px;
+            opacity: 0;
+            transform: translateY(10px);
+            transition: all 0.8s ease 0.6s;
+            display: none;
+        }
+
+        .extra-final-message-container.visible {
+            display: block;
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        .extra-final-message {
+            font-size: 1.05rem;
+            font-style: italic;
+            color: #6b421c;
+        }
+
+        /* --- BOTÓN DE GUARDAR Y FIRMA --- */
+        .action-section {
+            margin-top: 10px;
+            margin-bottom: 30px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 20px;
+            opacity: 0;
+            transform: translateY(15px);
+            transition: all 0.8s ease 0.8s;
+        }
+
+        .extra-final-message-container.visible ~ .action-section,
+        .action-section.visible {
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        .save-btn {
+            background-color: #e06d78;
+            color: white;
+            border: none;
+            padding: 12px 25px;
+            font-family: 'Playfair Display', Georgia, serif;
+            font-size: 0.95rem;
+            font-style: italic;
+            letter-spacing: 1px;
+            border-radius: 25px;
+            cursor: pointer;
+            box-shadow: 0 4px 15px rgba(224, 109, 120, 0.3);
+            transition: all 0.3s ease;
+        }
+
+        .save-btn:hover {
+            background-color: #cc5b66;
+            transform: scale(1.05);
+            box-shadow: 0 6px 20px rgba(224, 109, 120, 0.4);
+        }
+
+        .signature {
+            font-size: 0.85rem;
+            letter-spacing: 3px;
+            color: #b59b9e;
+            text-transform: uppercase;
+            font-weight: 600;
+        }
+
+        /* --- LLUVIA DE CONFETI / PAPELILLOS --- */
+        .confetti-container {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            overflow: hidden;
+            z-index: 999;
+            display: none;
+        }
+
+        .confetti-container.active {
+            display: block;
+        }
+
+        .confetti {
+            position: absolute;
+            top: -20px;
+            width: 10px;
+            height: 15px;
+            opacity: 0.8;
+            animation: fall linear forwards;
+        }
+
+        @keyframes fall {
+            0% {
+                transform: translateY(0) rotate(0deg) translateX(0);
+                opacity: 1;
+            }
+            100% {
+                transform: translateY(105vh) rotate(720deg) translateX(50px);
+                opacity: 0;
+            }
+        }
+
+        .hidden {
+            display: none !important;
+        }
+    </style>
+</head>
+<body>
+
+    <!-- Contenedor para la lluvia de papelillos -->
+    <div class="confetti-container" id="confettiContainer"></div>
+
+    <div class="album-container">
+        
+        <!-- Textos superiores -->
+        <div class="header-texts">
+            <h2 class="main-phrase" id="fraseTexto">Te amo esposa bella, feliz cumpleaños!</h2>
+            <p class="sub-date">12 de octubre</p>
+        </div>
+
+        <!-- Marco estilo Polaroid (Carrusel con las 6 fotos) -->
+        <div class="polaroid-frame">
+            <div class="carousel" id="photoCarousel">
+                <!-- Foto 1 -->
+                <div class="carousel-slide">
+                    <img src="img/foto1.jpeg" alt="Recuerdo 1" onerror="this.onerror=null; this.src='https://via.placeholder.com/300x375/f0eae1/888?text=Añade+tu+foto+1';">
+                </div>
+                <!-- Foto 2 -->
+                <div class="carousel-slide">
+                    <img src="img/foto2.jpeg" alt="Recuerdo 2" onerror="this.onerror=null; this.src='https://via.placeholder.com/300x375/f0eae1/888?text=Añade+tu+foto+2';">
+                </div>
+                <!-- Foto 3 -->
+                <div class="carousel-slide">
+                    <img src="img/foto3.jpeg" alt="Recuerdo 3" onerror="this.onerror=null; this.src='https://via.placeholder.com/300x375/f0eae1/888?text=Añade+tu+foto+3';">
+                </div>
+                <!-- Foto 4 -->
+                <div class="carousel-slide">
+                    <img src="img/foto4.jpeg" alt="Recuerdo 4" onerror="this.onerror=null; this.src='https://via.placeholder.com/300x375/f0eae1/888?text=Añade+tu+foto+4';">
+                </div>
+                <!-- Foto 5 -->
+                <div class="carousel-slide">
+                    <img src="img/foto5.jpeg" alt="Recuerdo 5" onerror="this.onerror=null; this.src='https://via.placeholder.com/300x375/f0eae1/888?text=Añade+tu+foto+5';">
+                </div>
+                <!-- Foto 6 (Última foto) -->
+                <div class="carousel-slide">
+                    <img src="img/foto6.jpeg" alt="Recuerdo 6" onerror="this.onerror=null; this.src='https://via.placeholder.com/300x375/f0eae1/888?text=Añade+tu+foto+6';">
+                </div>
+            </div>
+
+            <!-- Detalles inferiores de la Polaroid -->
+            <div class="polaroid-footer">
+                <div class="dots-container" id="dotsContainer">
+                    <div class="dot active"></div>
+                    <div class="dot"></div>
+                    <div class="dot"></div>
+                    <div class="dot"></div>
+                    <div class="dot"></div>
+                    <div class="dot"></div>
+                </div>
+                <div class="polaroid-decoration">
+                    <span class="decoration-line">✨ 🪅 ✨</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- Brindis con botella y copa en los extremos + animación de choque y fuegos artificiales -->
+        <div class="final-closing" id="brindisSection">
+            <!-- Destellos de fuegos artificiales al chocar -->
+            <div class="sparkles">
+                <span class="sparkle-particle sp1">✨</span>
+                <span class="sparkle-particle sp2">💥</span>
+                <span class="sparkle-particle sp3">✨</span>
+            </div>
+            
+            <div class="glasses-container">
+                <span class="glass-left">🍾</span>
+                <span class="glass-right">🥂</span>
+            </div>
+            <p class="final-phrase">Por todos tus cumpleaños, juntos!</p>
+        </div>
+
+        <!-- SECCIÓN INTERACTIVA: SOBRE / CARTA -->
+        <div class="interactive-section">
+            
+            <!-- Sobre cerrado con sello G V -->
+            <div class="envelope-card" id="envelopeCard" onclick="abrirCarta()">
+                <div class="wax-seal">
+                    <span>G V</span>
+                </div>
+                <p class="envelope-text">Hay algo escrito para ti...</p>
+            </div>
+
+            <!-- Carta desplegada -->
+            <div class="letter-content" id="letterContent">
+                <div class="letter-header-emojis">🎈 🎂 🎈</div>
+                
+                <div class="letter-text">
+                    <p>Llegaste a mi vida y cambiaste todo.</p><br>
+                    <p>Soy el hombre más afortunado por tenerte a mí lado y celebrar cada día de tu vida juntos.</p><br>
+                    <p>En este momento, quiero que sepas lo mucho que te amo y cuánto aprecio tener la oportunidad de vivir estos momentos contigo.</p><br>
+                    <p>Porque sé que cada día la vida te seguirá mostrando que no hay nadie más especial que <b>TÚ</b>.</p>
+                </div>
+
+                <div class="letter-footer-note">
+                    <p>Cada año tuyo es un capítulo nuevo,<br>y pienso estar en todos.</p>
+                </div>
+            </div>
+
+        </div>
+
+        <!-- Marco de madera para la FOTO 7 -->
+        <div class="wooden-frame-container" id="woodenFrame">
+            <div class="wooden-border">
+                <img src="img/foto7.jpeg" alt="Recuerdo Especial" onerror="this.onerror=null; this.src='https://via.placeholder.com/300x375/f0eae1/888?text=Añade+tu+foto7.jpeg';">
+            </div>
+            <div class="wooden-caption">Nuestro instante favorito</div>
+        </div>
+
+        <!-- Mensaje extra final -->
+        <div class="extra-final-message-container" id="extraMessage">
+            <p class="extra-final-message">Gracias por compartir tu vida conmigo.</p>
+        </div>
+
+        <!-- BOTÓN DE GUARDAR Y FIRMA -->
+        <div class="action-section" id="actionSection">
+            <button class="save-btn" onclick="guardarMomento()">Guardar este momento</button>
+            <div class="signature">Hecho con amor</div>
+        </div>
+
+    </div>
+
+    <script>
+        const carousel = document.getElementById('photoCarousel');
+        const dots = document.querySelectorAll('.dot');
+        const brindisSection = document.getElementById('brindisSection');
+        let animationTriggered = false;
+
+        // Función para actualizar los puntos y detectar la última foto
+        function actualizarPuntos() {
+            const slideWidth = carousel.clientWidth;
+            const currentIndex = Math.round(carousel.scrollLeft / slideWidth);
+            
+            dots.forEach((dot, i) => {
+                if (i === currentIndex) {
+                    dot.classList.add('active');
+                } else {
+                    dot.classList.remove('active');
+                }
+            });
+
+            // Si se desliza hasta la última foto (índice 5), se activa la animación del brindis
+            if (currentIndex === 5 && !animationTriggered) {
+                animationTriggered = true;
+                brindisSection.classList.add('animate');
+            }
+        }
+
+        // Escuchar el desplazamiento por las fotos
+        carousel.addEventListener('scroll', actualizarPuntos);
+
+        // Permitir hacer clic en cada punto para saltar directamente
+        dots.forEach((dot, index) => {
+            dot.addEventListener('click', () => {
+                const slideWidth = carousel.clientWidth;
+                carousel.scrollTo({
+                    left: slideWidth * index,
+                    behavior: 'smooth'
+                });
+            });
+        });
+
+        // Función para la transición del sobre a la carta
+        function abrirCarta() {
+            const envelope = document.getElementById('envelopeCard');
+            const letter = document.getElementById('letterContent');
+            const wooden = document.getElementById('woodenFrame');
+            const extraMsg = document.getElementById('extraMessage');
+            const actionSec = document.getElementById('actionSection');
+
+            envelope.classList.add('hidden');
+
+            setTimeout(() => {
+                letter.classList.add('visible');
+                
+                setTimeout(() => {
+                    wooden.classList.add('visible');
+
+                    setTimeout(() => {
+                        extraMsg.classList.add('visible');
+                        actionSec.classList.add('visible');
+                    }, 400);
+                }, 300);
+            }, 200);
+        }
+
+        function guardarMomento() {
+            alert('¡Momento guardado en el corazón (y listo para recordar)! ✨');
+        }
+
+        // --- EFECTO DE LLUVIA DE PAPELILLOS AL LLEGAR AL FINAL ---
+        let confettiTriggered = false;
+
+        function lanzarConfeti() {
+            if (confettiTriggered) return;
+            confettiTriggered = true;
+
+            const container = document.getElementById('confettiContainer');
+            container.classList.add('active');
+
+            const colors = ['#e06d78', '#f3edd8', '#d43b4c', '#d1c5bc', '#8B5A2B', '#ffdf73'];
+            const confettiCount = 50;
+
+            for (let i = 0; i < confettiCount; i++) {
+                const confetti = document.createElement('div');
+                confetti.classList.add('confetti');
+                
+                confetti.style.left = Math.random() * 100 + 'vw';
+                confetti.style.backgroundColor = colors[Math.floor(Math.random() * colors.length)];
+                confetti.style.animationDuration = (Math.random() * 3 + 2) + 's';
+                confetti.style.animationDelay = (Math.random() * 2) + 's';
+                
+                if (Math.random() > 0.5) {
+                    confetti.style.borderRadius = '50%';
+                    confetti.style.width = '8px';
+                    confetti.style.height = '8px';
+                }
+
+                container.appendChild(confetti);
+            }
+        }
+
+        window.addEventListener('scroll', () => {
+            const scrollPosition = window.innerHeight + window.scrollY;
+            const threshold = document.documentElement.scrollHeight - 100;
+
+            if (scrollPosition >= threshold) {
+                lanzarConfeti();
+            }
+        });
+    </script>
+
+</body>
+</html>

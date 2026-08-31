@@ -1,0 +1,199 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Para ti</title>
+    <!-- Fuente clásica Playfair Display -->
+    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400..900;1,400..900&display=swap" rel="stylesheet">
+
+    <style>
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            background-color: #fcf9f5; /* Fondo nácar */
+            color: #4a4a4a;
+            font-family: 'Playfair Display', Georgia, serif;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            overflow: hidden;
+            text-align: center;
+        }
+
+        .welcome-container {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+            width: 100%;
+            max-width: 400px;
+        }
+
+        .name {
+            font-size: 2.5rem;
+            font-weight: 500;
+            letter-spacing: 2px;
+            margin-bottom: 25px;
+            color: #8c5a45;
+        }
+
+        .instruction {
+            font-size: 1.2rem;
+            margin-bottom: 30px;
+            min-height: 60px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #8c5a45;
+            padding: 0 15px;
+        }
+
+        .heart-button {
+            background: none;
+            border: none;
+            cursor: pointer;
+            outline: none;
+            padding: 15px;
+            transition: transform 0.1s ease;
+            margin-bottom: 20px;
+        }
+
+        .heart-button:active {
+            transform: scale(0.95);
+        }
+
+        .heart {
+            font-size: 4rem;
+            color: #e06d78;
+            animation: latido 1.5s infinite;
+            filter: drop-shadow(0 2px 5px rgba(0,0,0,0.1));
+        }
+
+        @keyframes latido {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.15); }
+            100% { transform: scale(1); }
+        }
+
+        /* --- CONTENEDOR DE CARGA (BARRA + NÚMERO) --- */
+        .progress-area {
+            width: 80%;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 10px; /* Espacio entre la barra y el porcentaje */
+        }
+
+        .progress-wrapper {
+            width: 100%;
+            height: 10px;
+            background-color: #e0e0e0;
+            border-radius: 10px;
+            overflow: hidden;
+            box-shadow: inset 0 1px 3px rgba(0,0,0,0.1);
+        }
+
+        .progress-bar {
+            height: 100%;
+            background-color: #e06d78;
+            width: 0%;
+            border-radius: 10px;
+            transition: width 0.4s ease-in-out;
+        }
+
+        .percentage-text {
+            font-size: 1rem;
+            font-weight: 600;
+            color: #8c5a45;
+            letter-spacing: 1px;
+        }
+        /* ------------------------------------------- */
+
+        .unlocked-message {
+            display: none;
+            font-size: 1.5rem;
+            color: #8c5a45;
+            font-weight: bold;
+            animation: fadeIn 1s forwards;
+            margin-top: 30px;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+    </style>
+</head>
+<body>
+
+    <div class="welcome-container" id="welcomeSection">
+        <h1 class="name">Giselle</h1>
+
+        <p class="instruction" id="textoInstruccion">Toca el corazón para descubrir algo especial...</p>
+
+        <button class="heart-button" id="heartBtn" onclick="incrementarProgreso()">
+            <div class="heart">❤️</div>
+        </button>
+
+        <!-- Área conjunta de la barra y el número -->
+        <div class="progress-area" id="progressArea">
+            <div class="progress-wrapper">
+                <div class="progress-bar" id="progressBar"></div>
+            </div>
+            <div class="percentage-text" id="percentageText">0%</div>
+        </div>
+
+        <p class="unlocked-message" id="finalMessage">
+            ¡Desbloqueado! ❤️<br>Desliza hacia abajo...
+        </p>
+    </div>
+
+    <script>
+        let progreso = 0;
+        
+        const frases = [
+            { hasta: 15, texto: "Toca el corazón..." },
+            { hasta: 40, texto: "Sigue un poco más, vas por buen camino ✨" },
+            { hasta: 70, texto: "Casi llegamos, cada toque cuenta..." },
+            { hasta: 99, texto: "¡Ya casi está! Unos toques más y se abre la magia..." },
+            { hasta: 100, texto: "¡100%! Prepárate ❤️" }
+        ];
+
+        function incrementarProgreso() {
+            if (progreso < 100) {
+                progreso += 10;
+                if (progreso > 100) progreso = 100;
+
+                // Actualizar la barra de carga
+                document.getElementById('progressBar').style.width = progreso + '%';
+                
+                // Actualizar el número del porcentaje
+                document.getElementById('percentageText').innerText = progreso + '%';
+
+                for (let i = 0; i < frases.length; i++) {
+                    if (progreso <= frases[i].hasta) {
+                        document.getElementById('textoInstruccion').innerText = frases[i].texto;
+                        break;
+                    }
+                }
+
+            if (progreso === 100) {
+                setTimeout(() => {
+                // Redirige automáticamente a la página de recuerdos
+                window.location.href = "recuerdos.html";
+                }, 1500); // Pequeña pausa para que alcance a ver el 100%
+}
+                }
+            }
+        
+    </script>
+
+</body>
+</html>
