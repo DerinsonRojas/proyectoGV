@@ -542,7 +542,7 @@
     <!-- Barra flotante superior para controlar la música -->
     <div class="music-bar" id="musicBar" onclick="toggleMusica()">
         <span id="musicIcon">🔇</span>
-        <span id="musicText">Toca para poner música 🎶</span>
+        <span id="musicText">Toca para escuchar una bella canción 🎶</span>
     </div>
 
     <!-- Contenedor para la lluvia de papelillos -->
@@ -756,7 +756,7 @@
             if (!reproduciendo) {
                 audioFondo.play().then(() => {
                     reproduciendo = true;
-                    musicText.innerText = "Reproduciendo música 🎶";
+                    musicText.innerText = "Eres perfecta 🎶";
                     musicIcon.innerText = "🔊";
                     musicBar.style.backgroundColor = "#e6dcbe";
                 }).catch(error => {
